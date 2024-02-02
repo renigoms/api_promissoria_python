@@ -26,7 +26,10 @@ class SQLParcela:
                        f" {_PARCELAS_DEFINIDAS} FROM {_NAME_TABLE_CONTRATO}"
                        f" WHERE {SQLGeral.ID} = %s;")
 
-    SELECT_BY_DATA_PAG = f"{SQLGeral.SELECT_ALL(NAME_TABLE)} WHERE {_ID_CONTRATO} = %s AND {_DATA_PAG} = %s;"
+    SELECT_BY_ID_CONTRATO_AND_DATA_PAG = (f"{SQLGeral.SELECT_ALL(NAME_TABLE)}"
+                                          f" WHERE {_ID_CONTRATO} = %s AND {_DATA_PAG} = %s;")
+
+    SELECT_BY_DATA_PAG = f"{SQLGeral.SELECT_ALL(NAME_TABLE)} WHERE {_DATA_PAG} = %s;"
 
     CREATE = (f"INSERT INTO {NAME_TABLE} ({_ID_CONTRATO}, {_VALOR}, {_DATA_PAG}) "
               f"VALUES (%s,%s,%s)")

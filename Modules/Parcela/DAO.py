@@ -7,7 +7,8 @@ from Modules.Parcela.SQL import SQLParcela
 from Modules.Parcela.model import Parcela
 from Services.Connect_db_pg import Cursor
 
-from Services.Exceptions import IDException, ParcelasDefinidasException, NotAlterException
+from Services.Exceptions import IDException, ParcelasDefinidasException, NotAlterException, InstallmentDateException, \
+    ContractException
 from Util.DaoUltil import UtilGeral
 import datetime as dt
 
@@ -19,8 +20,9 @@ class DAOParcela:
 
     get_by_id_contrato = lambda id: UtilGeral.getSelectDictParcela(SQLParcela.SELECT_BY_ID_CONTRATO, id)
 
-    get_data_pag = lambda id_contrato, data_pag: UtilGeral.getSelectDictParcela(SQLParcela.SELECT_BY_DATA_PAG,
-                                                                                id_contrato, data_pag)
+    get_data_pag = lambda id_contrato, data_pag: UtilGeral.getSelectDictParcela(
+        SQLParcela.SELECT_BY_ID_CONTRATO_AND_DATA_PAG,
+        id_contrato, data_pag)
 
     @staticmethod
     def _is_no_alter_contrato(contrato: Contrato) -> bool:
@@ -61,9 +63,8 @@ class DAOParcela:
                     cont_sucesso += 1
                 cont += 1
 
-            return Cursor().execute(f"UPDATE {SQLContrato.NAME_TABLE} SET "
-                                    f"parcelas_definidas = TRUE WHERE {SQLGeral.ID}=%s;",
-                                    contrato.id) if cont_sucesso == contratoList[0].num_parcelas else False
+            return Cursor().execute(SQLContrato.UPDATE_PARCELAS_DEFINIDAS, contrato.id) \
+                if cont_sucesso == contratoList[0].num_parcelas else False
 
         except IDException as e:
             raise e
@@ -84,6 +85,11 @@ class DAOParcela:
                 or parcela.status is None)
 
     @staticmethod
+    def _is_installment_date_exists(dataPag: str):
+        getParcela = UtilGeral.getSelectDictParcela(SQLParcela.SELECT_BY_DATA_PAG, dataPag)
+        return len(getParcela) == 0
+
+    @staticmethod
     def put_update(parcela: Parcela, id_contrato: str, data_pag: str):
         try:
             if (id_contrato is None or id_contrato == ""
@@ -92,6 +98,12 @@ class DAOParcela:
 
             if DAOParcela._is_not_alter_parcela(parcela):
                 raise NotAlterException()
+
+            if DAOParcela._is_installment_date_exists(data_pag):
+                raise InstallmentDateException()
+
+            if UtilGeral.is_contract_exists(id_contrato):
+                raise ContractException()
 
             old_parcela = DAOParcela.get_data_pag(id_contrato, data_pag)
 
@@ -102,6 +114,10 @@ class DAOParcela:
         except NotAlterException as e:
             raise e
         except IDException as e:
+            raise e
+        except ContractException as e:
+            raise e
+        except InstallmentDateException as e:
             raise e
         except Exception as e:
             print(f"Erro durante o update: {e}")

@@ -62,4 +62,6 @@ class SQLContrato:
               f"{_NUM_PARCLS}, {_QNT_PRODUTO}, {_VALOR}, {_DESCRICAO}) "
               f"VALUES (%s,%s,%s,%s,%s, %s)")
 
+    UPDATE_PARCELAS_DEFINIDAS = f"UPDATE {NAME_TABLE} SET parcelas_definidas = TRUE WHERE {SQLGeral.ID}=%s;"
+
     DELETE = SQLGeral.DELETE_SQL(NAME_TABLE)

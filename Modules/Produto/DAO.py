@@ -5,7 +5,7 @@ import psycopg2
 from Modules.Produto.SQL import SQLProduto
 from Modules.Produto.model import Produto
 
-from Services.Exceptions import NullException, IDException, NotAlterException
+from Services.Exceptions import NullException, IDException, NotAlterException, AutoValueException
 from Util.DaoUltil import UtilGeral
 
 
@@ -19,13 +19,17 @@ class DAOProduto:
 
     get_by_name = lambda name: UtilGeral.getSelectDictProduto(SQLProduto.SELECT_BY_NAME, name)
 
+    _is_requered_elements = lambda product: (product.nome is None
+                                             or product.unid_medida is None
+                                             or product.valor_unit is None)
+
     @staticmethod
     def post_create(produto: Produto):
         try:
             from Services.Connect_db_pg import Cursor
-            if (produto.nome is None
-                    or produto.unid_medida is None
-                    or produto.valor_unit is None):
+            if produto.id is not None:
+                raise IDException()
+            if DAOProduto._is_requered_elements(produto):
                 raise NullException()
             return Cursor().execute(SQLProduto.CREATE_WITH_PORC_LUCRO_DEFAULT,
                                     produto.nome,
@@ -39,6 +43,8 @@ class DAOProduto:
                                       produto.porc_lucro)
 
         except NullException as e:
+            raise e
+        except IDException as e:
             raise e
         except psycopg2.errors.UniqueViolation as e:
             raise e

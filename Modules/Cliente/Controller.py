@@ -6,7 +6,7 @@ from flask.sansio.blueprints import Blueprint
 
 from Modules.Cliente.DAO import DAOCliente
 from Modules.Cliente.model import Cliente
-from Services.Exceptions import NullException, IDException, NotAlterException
+from Services.Exceptions import NullException, IDException, NotAlterException, ClientException
 from Util.ServerUtils import ResponseUtils
 
 
@@ -32,20 +32,20 @@ class ClienteController:
     @staticmethod
     @cliente_controller.route(f'/{module_name}/', methods=['POST'])
     def create_controller():
-
         try:
             data = request.json
             return ResponseUtils.generate_response("Cliente Cadastrado com Sucesso", 200) \
                 if DAOCliente.post_create(Cliente(**data)) \
                 else ResponseUtils.generate_response("Erro ao adicionar cliente", 400)
-
         except psycopg2.DatabaseError as e:
             return ResponseUtils.generate_response("Esse cliente já existe", 400)
         except NullException as e:
             return ResponseUtils.generate_response("Alguns itens obrigatorios não foram preenchidos", 400)
+        except IDException as e:
+            return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
+                                                   "a sua adição manual!", 400)
         except Exception as e:
             return ResponseUtils.generate_response("Erro ao adicionar cliente", 400)
-
 
     @staticmethod
     @cliente_controller.route(f'/{module_name}/<id>', methods=['PUT'])
@@ -58,6 +58,8 @@ class ClienteController:
             return ResponseUtils.generate_response("O id deve ser passado obrigatoriamente !!!", 400)
         except NotAlterException as e:
             return ResponseUtils.generate_response("O id não pode ser modificado !!!", 400)
+        except ClientException as e:
+            return ResponseUtils.generate_response("O cliente selecionado não existe na base!", 400)
         except Exception as e:
             return ResponseUtils.generate_response("Erro durante a tentativa de alteração !!!", 400)
 
@@ -74,5 +76,7 @@ class ClienteController:
         except psycopg2.errors.ForeignKeyViolation as e:
             return ResponseUtils.generate_response("Não foi possivel excluir o cliente,"
                                                    " pois ele possui um ou mais contratos ativos !!", 400)
+        except ClientException as e:
+            return ResponseUtils.generate_response("O cliente selecionado não existe na base!", 400)
         except Exception as e:
             return ResponseUtils.generate_response("Erro ao deletar esse cliente !!!", 400)

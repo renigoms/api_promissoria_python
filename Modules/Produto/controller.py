@@ -40,6 +40,9 @@ class ProdutoController:
             return ResponseUtils.generate_response("Esse produto já existe", 400)
         except NullException as e:
             return ResponseUtils.generate_response("Alguns itens obrigatorios não foram preenchidos", 400)
+        except IDException as e:
+            return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
+                                                   "a sua adição manual!", 400)
         except Exception as e:
             print(e)
             return ResponseUtils.generate_response("Erro ao adicionar produto!", 400)

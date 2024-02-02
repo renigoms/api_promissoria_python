@@ -4,7 +4,8 @@ from flask.sansio.blueprints import Blueprint
 from Modules.Contrato.model import Contrato
 from Modules.Parcela.DAO import DAOParcela
 from Modules.Parcela.model import Parcela
-from Services.Exceptions import IDException, ParcelasDefinidasException, NotAlterException
+from Services.Exceptions import IDException, ParcelasDefinidasException, NotAlterException, ContractException, \
+    InstallmentDateException
 from Util.ServerUtils import ResponseUtils
 
 
@@ -45,11 +46,14 @@ class ParcelaController:
             return ResponseUtils.generate_response("Update realizado com sucesso !!!", 200) \
                 if DAOParcela.put_update(Parcela(**data), id_contrato, data_pag) \
                 else ResponseUtils.generate_response("Falha no Update !!", 400)
-
         except NotAlterException as e:
             return ResponseUtils.generate_response("Você deve alterar apenas o status !!", 400)
         except IDException as e:
             return ResponseUtils.generate_response(f"Você deve passar o id do contrato e"
                                                    f"a data da parcela que deseja alterar", 400)
+        except ContractException as e:
+            return ResponseUtils.generate_response("O contrato selecionado não existe na base!", 400)
+        except InstallmentDateException as e:
+            return ResponseUtils.generate_response("Não existe uma parcela nesse contrato que contenha essa data!", 400)
         except Exception as e:
             return ResponseUtils.generate_response(f"Falha no Update: {e}", 400)
