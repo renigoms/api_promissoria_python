@@ -4,8 +4,7 @@ import psycopg2
 
 from Modules.Produto.SQL import SQLProduto
 from Modules.Produto.model import Produto
-
-from Services.Exceptions import NullException, IDException, NotAlterException, AutoValueException
+from Services.Exceptions import NullException, IDException, NotAlterException, ProductException
 from Util.DaoUltil import UtilGeral
 
 
@@ -63,6 +62,9 @@ class DAOProduto:
             if produto.id is not None:
                 raise NotAlterException()
 
+            if UtilGeral.is_product_exists(id):
+                raise ProductException()
+
             oldProduto = DAOProduto.get_by_id(id)
 
             nome = UtilGeral.get_Val_Update(oldProduto[0].nome, produto.nome)
@@ -75,6 +77,8 @@ class DAOProduto:
             raise e
         except NotAlterException as e:
             raise e
+        except ProductException as e:
+            raise e
         except Exception as e:
             print(e)
             print(sys.exc_info())
@@ -82,10 +86,14 @@ class DAOProduto:
     @staticmethod
     def delete(id: str):
         try:
+            if UtilGeral.is_product_exists(id):
+                raise ProductException()
             return UtilGeral.execute_delete(SQLProduto.DELETE, id)
         except IDException as e:
             raise e
         except psycopg2.errors.ForeignKeyViolation as e:
+            raise e
+        except ProductException as e:
             raise e
         except Exception as e:
             print(f"Erro ao deletar: {e}")
