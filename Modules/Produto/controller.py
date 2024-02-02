@@ -4,7 +4,7 @@ from flask.sansio.blueprints import Blueprint
 
 from Modules.Produto.DAO import DAOProduto
 from Modules.Produto.model import Produto
-from Services.Exceptions import NullException, IDException, NotAlterException
+from Services.Exceptions import NullException, IDException, NotAlterException, ProductException
 from Util.ServerUtils import ResponseUtils
 
 
@@ -58,6 +58,8 @@ class ProdutoController:
             return ResponseUtils.generate_response("O id deve ser passado obrigatoriamente !!!", 400)
         except NotAlterException as e:
             return ResponseUtils.generate_response("O id não pode ser modificado !!!", 400)
+        except ProductException as e:
+            return ResponseUtils.generate_response("O produto selecionado não existe na base!", 400)
         except Exception as e:
             print(e)
             return ResponseUtils.generate_response("Erro durante a tentativa de alteração !!!", 400)
@@ -75,5 +77,7 @@ class ProdutoController:
         except psycopg2.errors.ForeignKeyViolation as e:
             return ResponseUtils.generate_response("Não foi possivel excluir o produto,"
                                                    " pois ele possui um ou mais contratos ativos !!", 400)
+        except ProductException as e:
+            return ResponseUtils.generate_response("O produto selecionado não existe na base!", 400)
         except Exception as e:
             return ResponseUtils.generate_response("Erro ao deletar esse cliente !!!", 400)
