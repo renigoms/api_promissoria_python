@@ -41,6 +41,9 @@ class DAOParcela:
             from Services.Connect_db_pg import Cursor
             if DAOParcela._is_no_alter_contrato(contrato):
                 raise IDException()
+            
+            if UtilGeral.is_contract_exists(contrato.id):
+                raise ContractException()
 
             contratoList = UtilGeral.getSelectDictContrato(SQLParcela.SELECT_CONTRATO, contrato.id)
 
@@ -69,6 +72,8 @@ class DAOParcela:
         except IDException as e:
             raise e
         except ParcelasDefinidasException as e:
+            raise e
+        except ContractException as e:
             raise e
         except Exception as e:
             print(f"Erro ao salvar: {e}")
@@ -99,11 +104,11 @@ class DAOParcela:
             if DAOParcela._is_not_alter_parcela(parcela):
                 raise NotAlterException()
 
-            if DAOParcela._is_installment_date_exists(data_pag):
-                raise InstallmentDateException()
-
             if UtilGeral.is_contract_exists(id_contrato):
                 raise ContractException()
+
+            if DAOParcela._is_installment_date_exists(data_pag):
+                raise InstallmentDateException()
 
             old_parcela = DAOParcela.get_data_pag(id_contrato, data_pag)
 
