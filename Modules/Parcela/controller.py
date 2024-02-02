@@ -35,6 +35,8 @@ class ParcelaController:
             return ResponseUtils.generate_response("Você deve passar apenas o id do contrato", 400)
         except ParcelasDefinidasException as e:
             return ResponseUtils.generate_response("As parcelas desse contrato já foram definidas !!", 400)
+        except ContractException as e:
+            return ResponseUtils.generate_response("O contrato selecionado não existe na base!", 400)
         except Exception as e:
             return ResponseUtils.generate_response(f"Erro ao criar parcelas: {e}", 400)
 

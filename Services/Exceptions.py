@@ -33,18 +33,22 @@ class AutoValueException(_OriginException):
     def __init__(self, message: str = None):
         super().__init__(message)
 
+
 class ProductException(_OriginException):
     def __init__(self, message: str = None):
         super().__init__(message)
+
 
 class ClientException(_OriginException):
     def __init__(self, message: str = None):
         super().__init__(message)
 
+
 class ContractException(_OriginException):
     def __init__(self, message: str = None):
         super().__init__(message)
 
+
 class InstallmentDateException(_OriginException):
     def __init__(self, message: str = None):
-        super.__init__(message)
+        super().__init__(message)

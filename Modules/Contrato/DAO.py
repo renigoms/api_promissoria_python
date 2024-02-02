@@ -82,7 +82,7 @@ class DAOContrato:
             raise ParcelaEmAbertoExcerption()
         except ParcelaEmAbertoExcerption as e:
             raise e
-        except IDException() as e:
+        except IDException as e:
             raise e
         except ContractException as e:
             raise e
