@@ -36,7 +36,7 @@ class ProdutoController:
                 if DAOProduto.post_create(Produto(**data)) \
                 else ResponseUtils.generate_response("Erro ao adicionar produto", 400)
 
-        except psycopg2.DatabaseError as e:
+        except psycopg2.errors.UniqueViolation as e:
             return ResponseUtils.generate_response("Esse produto já existe", 400)
         except NullException as e:
             return ResponseUtils.generate_response("Alguns itens obrigatorios não foram preenchidos", 400)

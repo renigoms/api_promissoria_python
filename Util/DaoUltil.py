@@ -4,26 +4,19 @@ from Modules.Cliente.model import Cliente
 from Modules.Contrato.model import Contrato
 from Modules.Parcela.model import Parcela
 from Modules.Produto.model import Produto
+from Services.Connect_db_pg import Cursor
 from Services.Exceptions import IDException
 
 
 class UtilGeral:
-    @staticmethod
-    def _get_select_dict(query: str, *args) -> dict:
-        from Services.Connect_db_pg import Connection_db, Cursor
-        with (Connection_db(**Cursor().dicio2) as cursor):
-            cursor.execute(query, tuple(args))
-            result_cursor = cursor.fetchall()
-            cols = [desc[0] for desc in cursor.description]
-            return [dict(zip(cols, i)) for i in result_cursor]
 
-    getSelectDictCliente = lambda query, *args: [Cliente(**i) for i in UtilGeral._get_select_dict(query, *args)]
+    getSelectDictCliente = lambda query, *args: [Cliente(**i) for i in Cursor().query(query, *args)]
 
-    getSelectDictProduto = lambda query, *args: [Produto(**i) for i in UtilGeral._get_select_dict(query, *args)]
+    getSelectDictProduto = lambda query, *args: [Produto(**i) for i in Cursor().query(query, *args)]
 
-    getSelectDictContrato = lambda query, *args: [Contrato(**i) for i in UtilGeral._get_select_dict(query, *args)]
+    getSelectDictContrato = lambda query, *args: [Contrato(**i) for i in Cursor().query(query, *args)]
 
-    getSelectDictParcela = lambda query, *args: [Parcela(**i) for i in UtilGeral._get_select_dict(query, *args)]
+    getSelectDictParcela = lambda query, *args: [Parcela(**i) for i in Cursor().query(query, *args)]
 
     get_Val_Update = lambda oldValue, newValue: oldValue if newValue is None else newValue
 

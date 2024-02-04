@@ -21,7 +21,6 @@ class Connection_db:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.getConnection.commit()
-        # self.cursor.close()
 
 
 class Cursor:
@@ -48,13 +47,15 @@ class Cursor:
             return False
 
     def query(self, query, *args):
-        with Connection_db(**self.dicio2) as cursor:
-            cursor.execute(query, tuple(args))
-            return cursor.fetchall()
-
-    def getCursor(self):
-        with Connection_db(**self.dicio2) as cursor:
-            return cursor
+        try:
+            with (Connection_db(**Cursor().dicio2) as cursor):
+                cursor.execute(query, tuple(args))
+                result_cursor = cursor.fetchall()
+                cols = [desc[0] for desc in cursor.description]
+                return [dict(zip(cols, i)) for i in result_cursor]
+        except Exception as e:
+            print(f"Erro durante a execução da Query: {sys.exc_info()}")
+            return False
 
     def initTables(self):
         try:

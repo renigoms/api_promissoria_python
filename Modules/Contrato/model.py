@@ -33,7 +33,7 @@ class Contrato:
                         self._qnt_produto, self._valor, self._descricao,
                         self._data_criacao, self._parcelas_definidas
                     )
-
+                  
     @property
     def id(self):
         return self._id
