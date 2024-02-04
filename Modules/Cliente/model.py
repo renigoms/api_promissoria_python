@@ -11,6 +11,10 @@ class Cliente:
                 "telefone={}").format(self._id, self._nome_completo, self._cpf, self._email, self._telefone) \
             if self._id is not None \
             else "Cliente: nome_completo={},cpf={},email={},telefone={}".format(self._nome_completo, self._cpf, self._email, self._telefone)
+    
+    @property
+    def id(self):
+        return self._id
 
     @property
     def nome_completo(self):
@@ -19,10 +23,6 @@ class Cliente:
     @property
     def cpf(self):
         return self._cpf
-
-    @property
-    def id(self):
-        return self._id
 
     @property
     def email(self):

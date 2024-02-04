@@ -40,6 +40,8 @@ class DAOCliente:
             raise e
         except IDException as e:
             raise e
+        except psycopg2.errors.UniqueViolation as e:
+            raise e
         except Exception as e:
             print(f"Erro {e.__str__()} ao salvar, tente novamente !!!")
             print(f"-> {sys.exc_info()}")

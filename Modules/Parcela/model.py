@@ -14,10 +14,6 @@ class Parcela:
             self._id_contrato, self._valor, self._data_pag, self._status)
 
     @property
-    def id(self):
-        return self._id
-
-    @property
     def id_contrato(self):
         return self._id_contrato
 
