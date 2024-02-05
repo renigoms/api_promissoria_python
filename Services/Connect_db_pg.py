@@ -48,7 +48,7 @@ class Cursor:
 
     def query(self, query, *args):
         try:
-            with (Connection_db(**Cursor().dicio2) as cursor):
+            with (Connection_db(**self.dicio2) as cursor):
                 cursor.execute(query, tuple(args))
                 result_cursor = cursor.fetchall()
                 cols = [desc[0] for desc in cursor.description]
