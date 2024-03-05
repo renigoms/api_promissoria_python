@@ -5,7 +5,7 @@ from Modules.Contrato.model import Contrato
 from Modules.Parcela.DAO import DAOParcela
 from Modules.Parcela.model import Parcela
 from Services.Exceptions import IDException, ParcelasDefinidasException, NotAlterException, ContractException, \
-    InstallmentDateException
+    ParcelaException
 from Util.ServerUtils import ResponseUtils
 
 
@@ -14,31 +14,18 @@ class ParcelaController:
     modulo_name = "parcela"
 
     @staticmethod
-    @parcela_controller.route(f"/{modulo_name}/<id_contrato>", methods=["GET"])
-    def get_by_id_contrato_controller(id_contrato: str):
-        return ResponseUtils.get_response_busca(DAOParcela.get_by_id_contrato(id_contrato))
+    @parcela_controller.route(f"/{modulo_name}/", methods=['GET'])
+    def get_controller():
+        id_contrato = request.args.get('id_contrato')
+        data_pag = request.args.get('data_pag')
 
-    @staticmethod
-    @parcela_controller.route(f"/{modulo_name}/<id_contrato>/<data_pag>", methods=["GET"])
-    def get_by_data_pag_controller(id_contrato: str, data_pag: str):
-        return ResponseUtils.get_response_busca(DAOParcela.get_data_pag(id_contrato, data_pag))
+        if id_contrato is not None and data_pag is None:
+            return ResponseUtils.get_response_busca(DAOParcela.get_by_id_contrato(id_contrato))
 
-    @staticmethod
-    @parcela_controller.route(f"/{modulo_name}/", methods=["POST"])
-    def create_controller():
-        try:
-            data = request.json
-            return ResponseUtils.generate_response("Parcelas geradas com sucesso!!", 200) \
-                if DAOParcela.post_create(Contrato(**data)) \
-                else ResponseUtils.generate_response("Erro ao criar as parcealas!!", 400)
-        except IDException as e:
-            return ResponseUtils.generate_response("Você deve passar apenas o id do contrato", 400)
-        except ParcelasDefinidasException as e:
-            return ResponseUtils.generate_response("As parcelas desse contrato já foram definidas !!", 400)
-        except ContractException as e:
-            return ResponseUtils.generate_response("O contrato selecionado não existe na base!", 400)
-        except Exception as e:
-            return ResponseUtils.generate_response(f"Erro ao criar parcelas: {e}", 400)
+        if id_contrato is not None and data_pag is not None:
+            return ResponseUtils.get_response_busca(DAOParcela.get_data_pag(id_contrato, data_pag))
+
+        return ResponseUtils.get_response_busca([])
 
     @staticmethod
     @parcela_controller.route(f"/{modulo_name}/<id_contrato>/<data_pag>", methods=["PUT"])
@@ -55,7 +42,7 @@ class ParcelaController:
                                                    f"a data da parcela que deseja alterar", 400)
         except ContractException as e:
             return ResponseUtils.generate_response("O contrato selecionado não existe na base!", 400)
-        except InstallmentDateException as e:
+        except ParcelaException as e:
             return ResponseUtils.generate_response("Não existe uma parcela nesse contrato que contenha essa data!", 400)
         except Exception as e:
             return ResponseUtils.generate_response(f"Falha no Update: {e}", 400)

@@ -4,7 +4,8 @@ from flask.sansio.blueprints import Blueprint
 
 from Modules.Produto.DAO import DAOProduto
 from Modules.Produto.model import Produto
-from Services.Exceptions import NullException, IDException, NotAlterException, ProductException
+from Services.Exceptions import NullException, IDException, NotAlterException, ProductException, ForeingKeyException, \
+    ReactiveException
 from Util.ServerUtils import ResponseUtils
 
 
@@ -15,17 +16,9 @@ class ProdutoController:
     @staticmethod
     @produto_controller.route(f'/{module_name}/', methods=['GET'])
     def get_all_controller():
-        return ResponseUtils.get_response_busca(DAOProduto.get_all)
-
-    @staticmethod
-    @produto_controller.route(f'/{module_name}/<id>/', methods=['GET'])
-    def get_by_id_controller(id: str):
-        return ResponseUtils.get_response_busca(DAOProduto.get_by_id(id))
-
-    @staticmethod
-    @produto_controller.route(f'/{module_name}/nome/<nome>/', methods=['GET'])
-    def get_by_cpf_controller(nome: str):
-        return ResponseUtils.get_response_busca(DAOProduto.get_by_name(nome))
+        search = request.args.get('search')
+        return ResponseUtils.get_response_busca(DAOProduto.get_all)\
+            if search is None else ResponseUtils.get_response_busca(DAOProduto.get_by_search(search))
 
     @staticmethod
     @produto_controller.route(f'/{module_name}/', methods=['POST'])
@@ -43,6 +36,8 @@ class ProdutoController:
         except IDException as e:
             return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
                                                    "a sua adição manual!", 400)
+        except ReactiveException as e:
+            return ResponseUtils.generate_response("Produto Reativado !", 200)
         except Exception as e:
             print(e)
             return ResponseUtils.generate_response("Erro ao adicionar produto!", 400)
@@ -74,7 +69,7 @@ class ProdutoController:
         except IDException as e:
             return ResponseUtils.generate_response("Você precisa fornecer o ID do cliente "
                                                    "que quer deletar", 400)
-        except psycopg2.errors.ForeignKeyViolation as e:
+        except ForeingKeyException as e:
             return ResponseUtils.generate_response("Não foi possivel excluir o produto,"
                                                    " pois ele possui um ou mais contratos ativos !!", 400)
         except ProductException as e:
