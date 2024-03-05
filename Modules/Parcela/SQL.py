@@ -4,7 +4,7 @@ from Util.SQLGeral import SQLGeral
 class SQLParcela:
     NAME_TABLE = "Parcela"
     _NAME_TABLE_CONTRATO = "Contrato"
-    _STATUS = "status"
+    _PAGA = "paga"
     _DATA_PAG = "data_pag"
     _VALOR = "valor"
     _ID_CONTRATO = "id_contrato"
@@ -17,7 +17,7 @@ class SQLParcela:
                     f"{_ID_CONTRATO} INT REFERENCES {_NAME_TABLE_CONTRATO} "
                     f"({SQLGeral.ID}) ON DELETE CASCADE NOT NULL, "
                     f"{_VALOR} NUMERIC NOT NULL, {_DATA_PAG} DATE NOT NULL,"
-                    f"{_STATUS} VARCHAR(100) DEFAULT 'EM ABERTO'); ")
+                    f"{_PAGA} VARCHAR(100) DEFAULT 'EM ABERTO'); ")
 
     SELECT_BY_ID_CONTRATO = f"SELECT * FROM {NAME_TABLE} WHERE {_ID_CONTRATO} = %s"
 
@@ -34,4 +34,8 @@ class SQLParcela:
     CREATE = (f"INSERT INTO {NAME_TABLE} ({_ID_CONTRATO}, {_VALOR}, {_DATA_PAG}) "
               f"VALUES (%s,%s,%s)")
 
-    UPDATE = f"UPDATE {NAME_TABLE} SET {_STATUS} = %s WHERE {_ID_CONTRATO} = %s AND {_DATA_PAG} = %s;"
+    UPDATE = f"UPDATE {NAME_TABLE} SET {_PAGA} = %s WHERE {_ID_CONTRATO} = %s AND {_DATA_PAG} = %s;"
+
+    DESATIVAR_PARCELAS = SQLGeral.DELETE_SQL(NAME_TABLE, _ID_CONTRATO)
+
+    AUTO_ITEMS = [SQLGeral.ID, _ID_CONTRATO, _VALOR, _DATA_PAG, SQLGeral.ATIVO]

@@ -4,6 +4,7 @@ from Modules.Contrato.DAO import DAOContrato
 from Modules.Contrato.model import Contrato
 from Services.Exceptions import NullException, ParcelaEmAbertoExcerption, IDException, AutoValueException, \
     ContractException, ClientException, ProductException
+from Util.DaoUltil import UtilGeral
 from Util.ServerUtils import ResponseUtils
 
 
@@ -14,32 +15,28 @@ class ContratoController:
     @staticmethod
     @contrato_controller.route(f'/{modulo_name}/', methods=['GET'])
     def get_all_controller():
-        return ResponseUtils.get_response_busca(DAOContrato.get_all)
-
-    @staticmethod
-    @contrato_controller.route(f"/{modulo_name}/<id>", methods=['GET'])
-    def get_by_id(id: str):
-        return ResponseUtils.get_response_busca(DAOContrato.get_by_id(id))
-
-    @staticmethod
-    @contrato_controller.route(f"/{modulo_name}/cpf_cliente/<cpf>/", methods=['GET'])
-    def get_cpf_cliente(cpf: str):
-        return ResponseUtils.get_response_busca(DAOContrato.get_by_cliente_cpf(cpf))
+        search = request.args.get('search')
+        return ResponseUtils.get_response_busca(DAOContrato.get_all) \
+            if search is None else ResponseUtils.get_response_busca(DAOContrato.get_by_search)
 
     @staticmethod
     @contrato_controller.route(f"/{modulo_name}/", methods=['POST'])
     def create_controller():
+        data = request.json
         try:
-            data = request.json
+            if UtilGeral.is_auto_itens_not_null(data, DAOContrato.auto_items):
+                raise AutoValueException
+            if UtilGeral.is_requered_itens_null(data, DAOContrato.requered_items):
+                raise NullException
             return ResponseUtils.generate_response("Contrato gerado com sucesso !!", 200) \
                 if DAOContrato.post_create(Contrato(**data)) \
                 else ResponseUtils.generate_response("Erro ao gerar contrato !!", 400)
         except NullException as e:
-            return ResponseUtils.generate_response("Alguns itens obrigatórios não foram preenchidos!!", 400)
+            return ResponseUtils.generate_response(ResponseUtils.requered_message(DAOContrato.requered_items, data),
+                                                   400)
         except AutoValueException as e:
             return ResponseUtils.generate_response(
-                "ID, valor, data_criacao e parcelas_definidas são definidos "
-                "automaticamente, por isso não é permitida a sua adição manual", 400)
+                ResponseUtils.auto_items_message(DAOContrato.auto_items, data), 400)
         except ClientException as e:
             return ResponseUtils.generate_response("O cliente selecionado não existe na base!", 400)
         except ProductException as e:

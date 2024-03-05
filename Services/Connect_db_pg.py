@@ -40,7 +40,7 @@ class Cursor:
                 return True
         except psycopg2.errors.UniqueViolation as e:
             raise e
-        except psycopg2.errors.ForeignKeyViolation as e:
+        except psycopg2.errors.StringDataRightTruncation as e:
             raise e
         except:
             print(f"Erro durante a execução da Query: {sys.exc_info()}")
@@ -53,6 +53,10 @@ class Cursor:
                 result_cursor = cursor.fetchall()
                 cols = [desc[0] for desc in cursor.description]
                 return [dict(zip(cols, i)) for i in result_cursor]
+        except psycopg2.errors.UniqueViolation as e:
+            raise e
+        except psycopg2.errors.StringDataRightTruncation as e:
+            raise e
         except Exception as e:
             print(f"Erro durante a execução da Query: {sys.exc_info()}")
             return False
@@ -63,12 +67,15 @@ class Cursor:
             from Modules.Produto.DAO import DAOProduto
             from Modules.Contrato.DAO import DAOContrato
             from Modules.Parcela.DAO import DAOParcela
+            from Modules.Item_Produto.DAO import DAOItemProduto
 
             self.execute(DAOCliente.create_table)
             self.execute(DAOProduto.create_table)
             self.execute(DAOContrato.create_table)
             self.execute(DAOParcela.create_table)
+            self.execute(DAOItemProduto.GET_CREATE_TABLE)
             return True
-        except:
+        except Exception as e:
+            print(e)
             print(f"Falha ao iniciar as tabelas: {sys.exc_info()}")
             return False

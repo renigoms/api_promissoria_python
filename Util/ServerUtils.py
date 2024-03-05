@@ -17,3 +17,20 @@ class ResponseUtils:
         respose.status_code = status_code
         return respose
 
+    @staticmethod
+    def requered_message(list_requered:list, json_request:dict) -> str:
+        itens = [None, '', "", """""", 0, 0.0]
+
+        for camp in list_requered:
+            if itens.__contains__(json_request[camp]):
+                return f"O campo {camp} é obrigatório !"
+
+        return "Campo diferente dos aceitos pelo sistema detectado !"
+
+    @staticmethod
+    def auto_items_message(list_auto_items:str, json_request: dict) -> str:
+        for camp in list_auto_items:
+            if json_request[camp] is not None:
+                return f"O campo {camp} é definido automaticamente. Sua adição manual não é permitida !"
+
+        return "Campo diferente dos aceitos pelo sistema detectado !"

@@ -1,60 +1,88 @@
 import sys
 
+from Modules.Cliente.DAO import DAOCliente
 from Modules.Contrato.SQL import SQLContrato
 from Modules.Contrato.model import Contrato
+from Modules.Item_Produto.DAO import DAOItemProduto
+from Modules.Item_Produto.SQL import SQLItemProduto
+from Modules.Parcela.DAO import DAOParcela
+from Modules.Parcela.SQL import SQLParcela
 from Services.Connect_db_pg import Cursor
-from Services.Exceptions import AutoValueException, NullException, ParcelaEmAbertoExcerption, IDException, \
-    ContractException, ClientException, ProductException
+from Services.Exceptions import ParcelaEmAbertoExcerption, IDException, \
+    ContractException, ClientException, ProductException, RangerException
 from Util.DaoUltil import UtilGeral
 
 
 class DAOContrato:
-    create_table = SQLContrato.CREATE_TABLE
+    create_table = SQLContrato.CREATE_TABLE()
 
     get_all = UtilGeral.getSelectDictContrato(SQLContrato.SELECT_ALL)
+    
+    @staticmethod
+    def get_by_search(search:str):
+        search_id = 0
+        try:
+            search_id = int(search)
+        except ValueError:
+            pass
+        
+        return UtilGeral.getSelectDictContrato(SQLContrato.SELECT_BY_SEARCH, search_id, search)
+    
 
-    get_by_id = lambda id: UtilGeral.getSelectDictContrato(SQLContrato.SELECT_BY_ID, id)
+    requered_items = SQLContrato.REQUEST_ITENS
 
-    get_by_cliente_cpf = lambda cpf: UtilGeral.getSelectDictContrato(SQLContrato.SELECT_BY_CPF_CLIENTE, cpf)
+    auto_items = SQLContrato.AUTO_ITENS
 
-    _is_auto_elements = lambda contrato: (contrato.id is not None
-                                          or contrato.data_criacao is not None
-                                          or contrato.valor is not None
-                                          or contrato.parcelas_definidas is True)
+    @staticmethod
+    def _calc_valor_total_contrato(ids_produto: list, somatorio: float = 0, count: int = 0) -> float:
+        try:
+            somatorio += UtilGeral.get_valor_venda_produto(ids_produto[count])
+            count += 1
+        except RangerException as e:
+            return somatorio
 
-    _is_requered_elements = lambda contrato: (contrato.id_cliente is None
-                                              or contrato.id_produto is None
-                                              or contrato.num_parcelas is None
-                                              or contrato.descricao is None)
+        return DAOContrato._calc_valor_total_contrato(ids_produto, somatorio, count)
 
     @staticmethod
     def post_create(contrato: Contrato):
         try:
-            if DAOContrato._is_auto_elements(contrato):
-                raise AutoValueException()
-            if DAOContrato._is_requered_elements(contrato):
-                raise NullException()
-            if UtilGeral.is_client_exists(contrato.id_cliente):
-                raise ClientException()
-            if UtilGeral.is_product_exists(contrato.id_produto):
-                raise ProductException()
-            valor_unit_and_porc_lucro = UtilGeral.getSelectDictProduto(SQLContrato.SELECT_VAL_PORC_LUCRO_PRODUTO,
-                                                                       contrato.id_produto)[0]
-            valor = lambda x, y, z: (x * y + x) * z
 
-            return Cursor().execute(SQLContrato.CREATE, contrato.id_cliente,
-                                    contrato.id_produto, contrato.num_parcelas,
-                                    contrato.qnt_produto,
-                                    valor(
-                                        valor_unit_and_porc_lucro.valor_unit,
-                                        valor_unit_and_porc_lucro.porc_lucro,
-                                        contrato.qnt_produto
-                                    ),
-                                    contrato.descricao)
-        except NullException as e:
-            raise e
-        except AutoValueException as e:
-            raise e
+            if UtilGeral.is_not_client_exists(contrato.id_cliente):
+                raise ClientException()
+
+            for id_product in contrato.itens_produto:
+                if UtilGeral.is_not_product_exists(id_product):
+                    raise ProductException()
+
+            valor_contrato = DAOContrato._calc_valor_total_contrato(contrato.itens_produto)
+
+            create_contrato = Cursor().execute(SQLContrato.CREATE,
+                                               contrato.id_cliente, contrato.num_parcelas,
+                                               valor_contrato, contrato.descricao)
+
+            if create_contrato:
+                cliente = DAOCliente().get_by_search(contrato.id_cliente)
+
+                listar_contratos = DAOContrato().get_by_search(cliente[0].cpf)
+
+                contract_created = Contrato()
+
+                for item_contrato in listar_contratos:
+                    if not item_contrato.parcelas_definidas:
+                        contract_created = item_contrato
+                        break
+
+                cont_sucess_items_product = DAOItemProduto().create_item_produto(
+                    contrato.id_cliente, contrato.itens_produto, contract_created
+                )
+
+                cont_sucess_parcels = DAOParcela().create_parcela(
+                    valor_contrato, contrato.num_parcelas, contract_created.id
+                )
+
+                if (cont_sucess_parcels == contrato.num_parcelas and
+                        cont_sucess_items_product == len(contrato.itens_produto)):
+                    return Cursor().execute(SQLContrato.DEFINIR_PARCELAS, contract_created.id)
         except ClientException as e:
             raise e
         except ProductException as e:
@@ -66,19 +94,21 @@ class DAOContrato:
 
     @staticmethod
     def _is_full_parcelas_pagas(id: str):
-        lista_status_parcela = UtilGeral.getSelectDictParcela(SQLContrato.SELECT_STATUS_PACELAS, id)
+        lista_status_parcela = UtilGeral.getSelectDictParcela(SQLContrato.SELECT_STATUS_PACELAS(), id)
         for i in lista_status_parcela:
-            if i.status == "EM ABERTO":
+            if not i.paga:
                 return False
         return True
 
     @staticmethod
     def delete(id: str):
         try:
-            if UtilGeral.is_contract_exists(id):
+            if UtilGeral.is_not_contract_exists(id):
                 raise ContractException()
             if DAOContrato._is_full_parcelas_pagas(id):
-                return UtilGeral.execute_delete(SQLContrato.DELETE, id)
+                if Cursor().execute(SQLParcela.DESATIVAR_PARCELAS, id) \
+                        and Cursor().execute(SQLItemProduto.DESATIVAR_ITEM_PRODUTO, id):
+                    return UtilGeral.execute_delete(SQLContrato.DELETE, id)
             raise ParcelaEmAbertoExcerption()
         except ParcelaEmAbertoExcerption as e:
             raise e

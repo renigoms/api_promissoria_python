@@ -49,6 +49,19 @@ class ContractException(_OriginException):
         super().__init__(message)
 
 
-class InstallmentDateException(_OriginException):
+class ParcelaException(_OriginException):
     def __init__(self, message: str = None):
+        super().__init__(message)
+
+
+class RangerException(_OriginException):
+    def __init__(self, message: str = None):
+        super().__init__(message)
+
+class ForeingKeyException(_OriginException):
+    def __init__(self, message: str = None):
+        super().__init__(message)
+
+class ReactiveException(_OriginException):
+    def __init__(self, message:str = None):
         super().__init__(message)
