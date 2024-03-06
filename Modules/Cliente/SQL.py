@@ -20,7 +20,8 @@ class SQLCliente:
     SELECT_ALL = SQLGeral.SELECT_ALL(NAME_TABLE)
 
     SELECT_BY_SEARCH = f"""{SELECT_ALL} WHERE ({SQLGeral.ID} = %s) 
-                            OR ({_NOME_COMPLETO} ILIKE %s) OR ({_CPF} ILIKE %s);"""
+                            OR ({_NOME_COMPLETO} ILIKE %s) OR ({_CPF} ILIKE %s) 
+                            ORDER BY CASE WHEN {SQLGeral.ID} = %s THEN 0 ELSE 1 END, {SQLGeral.ID};"""
 
     @staticmethod
     def SELECT_ID_CLIENTE_IN_CONTRATO():

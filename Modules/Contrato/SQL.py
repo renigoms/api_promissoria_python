@@ -20,8 +20,6 @@ class SQLContrato:
 
     _VALOR = "valor"
 
-    _QNT_PRODUTO = "qnt_produto"
-
     _DESCRICAO = "descricao"
 
     _DATA_CRIACAO = "data_criacao"
@@ -49,7 +47,7 @@ class SQLContrato:
         from Modules.Cliente.SQL import SQLCliente
         CLIENTE_CPF = "cpf"
         return f"""SELECT {SQLGeral.ID} FROM {SQLCliente.NAME_TABLE} 
-                    WHERE {CLIENTE_CPF} ILIKE %s;"""
+                    WHERE {CLIENTE_CPF} ILIKE %s"""
 
     SELECT_BY_SEARCH = f"""{SELECT_ALL} WHERE ({SQLGeral.ID} = %s) 
                             OR ({_ID_CLIENTE} IN ({_SELECT_ID_CLIENTE_BY_CPF()}));"""
@@ -69,12 +67,12 @@ class SQLContrato:
                 f"ON {SQLContrato._ID_CONTRATO_BY_PARCELA} = %s;")
 
     CREATE = (f"INSERT INTO {NAME_TABLE} ({_ID_CLIENTE}, "
-              f"{_NUM_PARCLS}, {_QNT_PRODUTO}, {_VALOR}, {_DESCRICAO}) "
-              f"VALUES (%s,%s,%s,%s,%s)")
+              f"{_NUM_PARCLS}, {_VALOR}, {_DESCRICAO}) "
+              f"VALUES (%s,%s,%s,%s);")
 
-    UPDATE_PARCELAS_DEFINIDAS = f"UPDATE {NAME_TABLE} SET {_PARCELAS_DEFINIDAS} = TRUE WHERE {SQLGeral.ID}=%s;"
+    UPDATE_PARCELAS_DEFINIDAS = f"""UPDATE {NAME_TABLE} SET {_PARCELAS_DEFINIDAS} = TRUE WHERE {SQLGeral.ID}=%s;"""
 
-    DEFINIR_PARCELAS = f"""UPDATE {NAME_TABLE} SET ({_PARCELAS_DEFINIDAS} = TRUE) WHERE ({SQLGeral.ID}=%s);"""
+    DEFINIR_PARCELAS = f"""UPDATE {NAME_TABLE} SET {_PARCELAS_DEFINIDAS} = TRUE WHERE {SQLGeral.ID}=%s;"""
 
     DELETE = SQLGeral.DELETE_SQL(NAME_TABLE, SQLGeral.ID)
 

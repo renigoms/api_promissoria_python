@@ -26,7 +26,8 @@ class DAOCliente:
 
         return UtilGeral.getSelectDictCliente(SQLCliente.SELECT_BY_SEARCH, search_id,
                                               UtilGeral.ADD_SIDES("%", search),
-                                              UtilGeral.ADD_SIDES("%", search, False))
+                                              UtilGeral.ADD_SIDES("%", search, False),
+                                              search_id)
 
     REQUERED_ITEMS = SQLCliente.REQUERED_ITENS
 
@@ -50,7 +51,7 @@ class DAOCliente:
         except psycopg2.errors.UniqueViolation as e:
             list_col_ativo = Cursor().query(SQLCliente.SELECT_COLUNMS_CLIENTE, cliente.cpf)
             if (list_col_ativo[0]['ativo'] is not True
-                and list_col_ativo[0]['nome_completo'] == cliente.nome_completo):
+                    and list_col_ativo[0]['nome_completo'] == cliente.nome_completo):
                 if Cursor().execute(SQLCliente.ACTIVE_CLIENT, cliente.cpf):
                     DAOCliente.put_update(cliente, list_col_ativo[0][SQLGeral.ID])
                     raise ReactiveException()

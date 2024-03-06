@@ -11,12 +11,12 @@ class DAOItemProduto:
                                                                        id_contrato)
 
     @staticmethod
-    def create_item_produto(id_cliente: int, itens_produto: list, contrato_list: list[Contrato]):
+    def create_item_produto(id_cliente: int, itens_produto: list, contrato: Contrato):
         cont_sucess_items_product = 0
 
         for id_produto in itens_produto:
             valor_venda = UtilGeral.get_valor_venda_produto(id_produto)
-            if Cursor().execute(SQLItemProduto.CREATE, contrato_list[0].id,
+            if Cursor().execute(SQLItemProduto.CREATE, contrato.id,
                                 id_produto, valor_venda):
                 cont_sucess_items_product += 1
         return cont_sucess_items_product

@@ -1,3 +1,4 @@
+import sys
 from flask import request
 from flask.sansio.blueprints import Blueprint
 from Modules.Contrato.DAO import DAOContrato
@@ -22,8 +23,9 @@ class ContratoController:
     @staticmethod
     @contrato_controller.route(f"/{modulo_name}/", methods=['POST'])
     def create_controller():
-        data = request.json
+        global data
         try:
+            data = request.json
             if UtilGeral.is_auto_itens_not_null(data, DAOContrato.auto_items):
                 raise AutoValueException
             if UtilGeral.is_requered_itens_null(data, DAOContrato.requered_items):
@@ -32,8 +34,7 @@ class ContratoController:
                 if DAOContrato.post_create(Contrato(**data)) \
                 else ResponseUtils.generate_response("Erro ao gerar contrato !!", 400)
         except NullException as e:
-            return ResponseUtils.generate_response(ResponseUtils.requered_message(DAOContrato.requered_items, data),
-                                                   400)
+            return ResponseUtils.generate_response(ResponseUtils.requered_message(DAOContrato.requered_items, data), 400)
         except AutoValueException as e:
             return ResponseUtils.generate_response(
                 ResponseUtils.auto_items_message(DAOContrato.auto_items, data), 400)

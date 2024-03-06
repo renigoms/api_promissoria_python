@@ -23,6 +23,7 @@ class ClienteController:
     @staticmethod
     @cliente_controller.route(f'/{module_name}/', methods=['POST'])
     def create_controller():
+        global data
         try:
             data = request.json
             return ResponseUtils.generate_response("Cliente Cadastrado com Sucesso", 200) \
@@ -35,12 +36,15 @@ class ClienteController:
         except ReactiveException as e:
             return ResponseUtils.generate_response("Cliente Reativado !", 200)
         except NullException as e:
-            return ResponseUtils.generate_response("Alguns itens obrigatorios não foram preenchidos", 400)
+            return ResponseUtils.generate_response(
+                ResponseUtils.requered_message(
+                    DAOCliente.REQUERED_ITEMS, data
+                    ), 400)
         except IDException as e:
             return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
                                                    "a sua adição manual!", 400)
         except Exception as e:
-            return ResponseUtils.generate_response("Erro ao adicionar cliente", 400)
+            return ResponseUtils.generate_response("Erro ao adicionar cliente"+e, 400)
 
     @staticmethod
     @cliente_controller.route(f'/{module_name}/<id>', methods=['PUT'])

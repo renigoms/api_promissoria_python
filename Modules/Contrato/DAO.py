@@ -9,7 +9,7 @@ from Modules.Parcela.DAO import DAOParcela
 from Modules.Parcela.SQL import SQLParcela
 from Services.Connect_db_pg import Cursor
 from Services.Exceptions import ParcelaEmAbertoExcerption, IDException, \
-    ContractException, ClientException, ProductException, RangerException
+    ContractException, ClientException, ProductException
 from Util.DaoUltil import UtilGeral
 
 
@@ -17,17 +17,16 @@ class DAOContrato:
     create_table = SQLContrato.CREATE_TABLE()
 
     get_all = UtilGeral.getSelectDictContrato(SQLContrato.SELECT_ALL)
-    
+
     @staticmethod
-    def get_by_search(search:str):
+    def get_by_search(search: str):
         search_id = 0
         try:
             search_id = int(search)
         except ValueError:
             pass
-        
+
         return UtilGeral.getSelectDictContrato(SQLContrato.SELECT_BY_SEARCH, search_id, search)
-    
 
     requered_items = SQLContrato.REQUEST_ITENS
 
@@ -38,7 +37,7 @@ class DAOContrato:
         try:
             somatorio += UtilGeral.get_valor_venda_produto(ids_produto[count])
             count += 1
-        except RangerException as e:
+        except IndexError as e:
             return somatorio
 
         return DAOContrato._calc_valor_total_contrato(ids_produto, somatorio, count)
@@ -46,7 +45,6 @@ class DAOContrato:
     @staticmethod
     def post_create(contrato: Contrato):
         try:
-
             if UtilGeral.is_not_client_exists(contrato.id_cliente):
                 raise ClientException()
 
@@ -65,7 +63,7 @@ class DAOContrato:
 
                 listar_contratos = DAOContrato().get_by_search(cliente[0].cpf)
 
-                contract_created = Contrato()
+                contract_created = None
 
                 for item_contrato in listar_contratos:
                     if not item_contrato.parcelas_definidas:

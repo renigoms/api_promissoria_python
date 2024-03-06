@@ -6,7 +6,7 @@ class ResponseUtils:
     @staticmethod
     def get_response_busca(list_object):
         try:
-            result = [object_item.__dict__ for object_item in list_object]
+            result = [object_item.to_dict() for object_item in list_object]
             return ResponseUtils.generate_response(result, 200)
         except Exception as e:
             return ResponseUtils.generate_response(f"Erro ao realizar a busca: {sys.exc_info()}", 500)
@@ -22,7 +22,10 @@ class ResponseUtils:
         itens = [None, '', "", """""", 0, 0.0]
 
         for camp in list_requered:
-            if itens.__contains__(json_request[camp]):
+            try:
+                if itens.__contains__(json_request[camp]):
+                    return f"O campo {camp} é obrigatório !"
+            except KeyError as e:
                 return f"O campo {camp} é obrigatório !"
 
         return "Campo diferente dos aceitos pelo sistema detectado !"
@@ -30,7 +33,10 @@ class ResponseUtils:
     @staticmethod
     def auto_items_message(list_auto_items:str, json_request: dict) -> str:
         for camp in list_auto_items:
-            if json_request[camp] is not None:
+            try:
+                teste = json_request[camp]
                 return f"O campo {camp} é definido automaticamente. Sua adição manual não é permitida !"
+            except KeyError as e:
+                continue
 
         return "Campo diferente dos aceitos pelo sistema detectado !"

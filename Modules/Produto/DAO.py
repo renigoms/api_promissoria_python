@@ -114,6 +114,8 @@ class DAOProduto:
             return UtilGeral.execute_delete(SQLProduto.DELETE, id)
         except IDException as e:
             raise e
+        except psycopg2.errors.UniqueViolation as e:
+            raise e
         except ForeingKeyException as e:
             raise e
         except ProductException as e:

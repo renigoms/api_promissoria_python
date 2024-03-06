@@ -1,6 +1,8 @@
 import datetime as dt
 import sys
 
+from dateutil.relativedelta import relativedelta
+
 from Modules.Parcela.SQL import SQLParcela
 from Modules.Parcela.model import Parcela
 from Services.Connect_db_pg import Cursor
@@ -35,7 +37,7 @@ class DAOParcela:
         while count < num_parcelas:
             if Cursor().execute(SQLParcela.CREATE, id_contrato, valor_parcela(
                     valor_contrato, num_parcelas), date_today.strftime("%d-%m-%Y")):
-                date_today = dt.datetime(date_today.year, date_today.month + 1, date_today.day)
+                date_today = date_today + relativedelta(months=+1)
                 cont_sucess_parcels += 1
             count += 1
 

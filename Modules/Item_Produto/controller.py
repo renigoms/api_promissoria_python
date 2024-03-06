@@ -6,7 +6,7 @@ from Util.ServerUtils import ResponseUtils
 
 class ItemProdutoController:
     item_produto_controller = Blueprint('item_produto_controller', __name__)
-    modulo_name = 'Item Produto'
+    modulo_name = 'item_produto'
 
     @staticmethod
     @item_produto_controller.route(f'/{modulo_name}/<id_contrato>', methods = ['GET'])
