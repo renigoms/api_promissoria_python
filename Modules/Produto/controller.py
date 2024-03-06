@@ -17,12 +17,13 @@ class ProdutoController:
     @produto_controller.route(f'/{module_name}/', methods=['GET'])
     def get_all_controller():
         search = request.args.get('search')
-        return ResponseUtils.get_response_busca(DAOProduto.get_all)\
+        return ResponseUtils.get_response_busca(DAOProduto.get_all) \
             if search is None else ResponseUtils.get_response_busca(DAOProduto.get_by_search(search))
 
     @staticmethod
     @produto_controller.route(f'/{module_name}/', methods=['POST'])
     def create_controller():
+        global data
         try:
             data = request.json
             return ResponseUtils.generate_response("Produto Cadastrado com Sucesso", 200) \
@@ -32,7 +33,8 @@ class ProdutoController:
         except psycopg2.errors.UniqueViolation as e:
             return ResponseUtils.generate_response("Esse produto já existe", 400)
         except NullException as e:
-            return ResponseUtils.generate_response("Alguns itens obrigatorios não foram preenchidos", 400)
+            return ResponseUtils.generate_response(
+                ResponseUtils.requered_message(DAOProduto.REQUERED_ITEMS, data), 400)
         except IDException as e:
             return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
                                                    "a sua adição manual!", 400)
@@ -49,6 +51,8 @@ class ProdutoController:
             return ResponseUtils.generate_response("Produto atualizado com sucesso!!!", 200) \
                 if DAOProduto.put_update(Produto(**request.json), id) \
                 else ResponseUtils.generate_response("Erro durante a tentativa de alteração !!", 400)
+        except psycopg2.errors.UniqueViolation as e:
+            return ResponseUtils.generate_response("Já existe um produto com o mesmo nome da sua alteração na base!", 400)
         except IDException as e:
             return ResponseUtils.generate_response("O id deve ser passado obrigatoriamente !!!", 400)
         except NotAlterException as e:

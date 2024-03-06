@@ -28,7 +28,7 @@ class ParcelaController:
         return ResponseUtils.get_response_busca([])
 
     @staticmethod
-    @parcela_controller.route(f"/{modulo_name}/<id_contrato>/<data_pag>", methods=["PUT"])
+    @parcela_controller.route(f"/{modulo_name}/<id_contrato>/data_pag/<data_pag>", methods=["PUT"])
     def update_controller(id_contrato: str, data_pag: str):
         try:
             data = request.json

@@ -6,3 +6,11 @@ class Cliente:
         self.email = email
         self.telefone = telefone
         self.ativo = ativo
+
+    def to_dict(self):
+        return dict(id=self.id,
+                    nome_completo=self.nome_completo,
+                    cpf=self.cpf,
+                    email=self.email,
+                    telefone=self.telefone,
+                    ativo=self.ativo)

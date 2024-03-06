@@ -62,23 +62,27 @@ class UtilGeral:
     @staticmethod
     def is_auto_itens_not_null(dictMap: dict, list_auto_elements: list) -> bool:
         for camp in list_auto_elements:
-            if dictMap[camp] is not None:
+            try:
+                teste = dictMap[camp]
                 return True
+            except KeyError as e:
+                continue
         return False
 
     @staticmethod
     def is_requered_itens_null(dict_map: dict, list_requered_elements: list) -> bool:
-        itens = [None, "", '', 0, 0.0]
+        itens = [None, '', "", """""", 0, 0.0]
         for camp in list_requered_elements:
-            if itens.__contains__(dict_map[camp]):
+            try:
+                if itens.__contains__(dict_map[camp]):
+                    return True
+            except KeyError as e:
                 return True
         return False
-    
-    # @staticmethod
-    # def ADD_SIDES(add_itens, texto_base, ambos_lados):
 
     ADD_SIDES = lambda add_itens, texto_base, ambos_lados=True: \
-        add_itens + texto_base + add_itens if ambos_lados else add_itens + texto_base
+        add_itens + (texto_base_str := str(texto_base) if isinstance(texto_base, int) else texto_base) + add_itens \
+            if ambos_lados else (texto_base_str := str(texto_base) if isinstance(texto_base, int) else texto_base) + add_itens
 
     @staticmethod
     def get_valor_venda_produto(id_produto: int):
