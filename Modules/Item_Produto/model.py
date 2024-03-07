@@ -10,5 +10,5 @@ class ItemProduto:
         return dict(id=self.id,
                     id_contrato=self.id_contrato,
                     id_produto=self.id_produto,
-                    valor_venda=self.valor_venda,
+                    valor_venda=float(self.valor_venda),
                     ativo=self.ativo)

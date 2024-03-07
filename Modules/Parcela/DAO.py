@@ -54,7 +54,7 @@ class DAOParcela:
                     or data_pag is None or data_pag == ""):
                 raise IDException()
 
-            if DAOParcela._is_paga_only(parcela):
+            if DAOParcela._is_paga_only(parcela) or parcela.paga is None:
                 raise NotAlterException()
 
             if UtilGeral.is_not_contract_exists(id_contrato):
