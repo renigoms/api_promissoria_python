@@ -11,6 +11,6 @@ class Produto:
         return dict(id=self.id,
                     nome=self.nome,
                     unid_medida=self.unid_medida,
-                    valor_unit=self.valor_unit,
+                    valor_unit=float(self.valor_unit),
                     porc_lucro=self.porc_lucro,
                     ativo=self.ativo, )

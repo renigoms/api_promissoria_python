@@ -18,7 +18,7 @@ class ContratoController:
     def get_all_controller():
         search = request.args.get('search')
         return ResponseUtils.get_response_busca(DAOContrato.get_all) \
-            if search is None else ResponseUtils.get_response_busca(DAOContrato.get_by_search)
+            if search is None else ResponseUtils.get_response_busca(DAOContrato.get_by_search(search))
 
     @staticmethod
     @contrato_controller.route(f"/{modulo_name}/", methods=['POST'])

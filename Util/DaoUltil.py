@@ -72,8 +72,8 @@ class UtilGeral:
     def is_auto_itens_not_null(dictMap: dict, list_auto_elements: list) -> bool:
         for camp in list_auto_elements:
             try:
-                teste = dictMap[camp]
-                return True
+                if dictMap[camp] is not None:
+                    return True
             except KeyError as e:
                 continue
         return False
