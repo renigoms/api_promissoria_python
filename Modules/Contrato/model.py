@@ -16,7 +16,7 @@ class Contrato:
         return dict(id=self.id,
                     id_cliente=self.id_cliente,
                     num_parcelas=self.num_parcelas,
-                    valor=self.valor,
+                    valor=float(self.valor),
                     descricao=self.descricao,
                     data_criacao=self.data_criacao,
                     parcelas_definidas=self.parcelas_definidas,

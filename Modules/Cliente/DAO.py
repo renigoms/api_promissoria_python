@@ -36,16 +36,11 @@ class DAOCliente:
         try:
             if cliente.id is not None:
                 raise IDException()
-            if UtilGeral.is_requered_itens_null(cliente.__dict__, DAOCliente.REQUERED_ITEMS):
-                raise NullException()
             return Cursor().execute(SQLCliente.CREATE,
                                     cliente.nome_completo,
                                     cliente.cpf,
                                     cliente.email,
                                     cliente.telefone)
-
-        except NullException as e:
-            raise e
         except IDException as e:
             raise e
         except psycopg2.errors.UniqueViolation as e:

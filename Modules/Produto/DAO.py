@@ -35,8 +35,7 @@ class DAOProduto:
             from Services.Connect_db_pg import Cursor
             if produto.id is not None:
                 raise IDException()
-            if UtilGeral.is_requered_itens_null(produto.__dict__, DAOProduto.REQUERED_ITEMS):
-                raise NullException()
+            
             return Cursor().execute(SQLProduto.CREATE_WITH_PORC_LUCRO_DEFAULT,
                                     produto.nome,
                                     produto.unid_medida,
@@ -47,9 +46,6 @@ class DAOProduto:
                                       produto.unid_medida,
                                       produto.valor_unit,
                                       produto.porc_lucro)
-
-        except NullException as e:
-            raise e
         except IDException as e:
             raise e
         except psycopg2.errors.UniqueViolation as e:

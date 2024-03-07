@@ -7,7 +7,8 @@ class ResponseUtils:
     def get_response_busca(list_object):
         try:
             result = [object_item.to_dict() for object_item in list_object]
-            return ResponseUtils.generate_response(result, 200)
+            return result;
+            # return ResponseUtils.generate_response(result, 200)
         except Exception as e:
             return ResponseUtils.generate_response(f"Erro ao realizar a busca: {sys.exc_info()}", 500)
 

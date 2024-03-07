@@ -7,8 +7,8 @@ class SQLGeral:
 
     ATIVO_QUERY = f"{ATIVO} BOOL DEFAULT TRUE"
 
-    DELETE_SQL = lambda NAME_TABLE, COLUMN_FILTER: f"""UPDATE {NAME_TABLE} SET {SQLGeral.ATIVO} 
-                                                        WHERE {COLUMN_FILTER} = %s;"""
+    DELETE_SQL = lambda NAME_TABLE, COLUMN_FILTER: f"""UPDATE {NAME_TABLE} 
+            SET {SQLGeral.ATIVO} = FALSE WHERE {COLUMN_FILTER} = %s;"""
 
     SELECT_ALL = lambda NAME_TABLE: f"SELECT * FROM {NAME_TABLE}"
 
