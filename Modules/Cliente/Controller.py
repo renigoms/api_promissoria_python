@@ -6,6 +6,7 @@ from Modules.Cliente.DAO import DAOCliente
 from Modules.Cliente.model import Cliente
 from Services.Exceptions import NullException, IDException, NotAlterException, ClientException, ForeingKeyException, \
     ReactiveException
+from Util.DaoUltil import UtilGeral
 from Util.ServerUtils import ResponseUtils
 
 
@@ -26,6 +27,8 @@ class ClienteController:
         global data
         try:
             data = request.json
+            if UtilGeral.is_requered_itens_null(data, DAOCliente.REQUERED_ITEMS):
+                raise NullException()
             return ResponseUtils.generate_response("Cliente Cadastrado com Sucesso", 200) \
                 if DAOCliente.post_create(Cliente(**data)) \
                 else ResponseUtils.generate_response("Erro ao adicionar cliente", 400)
@@ -44,7 +47,7 @@ class ClienteController:
             return ResponseUtils.generate_response("O ID é adicionado automáticamente, não sendo permitida"
                                                    "a sua adição manual!", 400)
         except Exception as e:
-            return ResponseUtils.generate_response("Erro ao adicionar cliente"+e, 400)
+            return ResponseUtils.generate_response(f"Erro ao adicionar cliente: {e}", 400)
 
     @staticmethod
     @cliente_controller.route(f'/{module_name}/<id>', methods=['PUT'])

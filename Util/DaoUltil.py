@@ -8,18 +8,27 @@ from Modules.Parcela.model import Parcela
 from Modules.Produto.model import Produto
 from Services.Connect_db_pg import Cursor
 from Services.Exceptions import IDException
+from Util.SQLGeral import SQLGeral
 
 
 class UtilGeral:
-    getSelectDictCliente = lambda query, *args: [Cliente(**i) for i in Cursor().query(query, *args)]
+    
+    @staticmethod
+    def _get_Only_active_elements(query, *args):
+        try:
+            return [i for i in Cursor().query(query, *args) if i[SQLGeral.ATIVO]]
+        except KeyError as e:
+            return [i for i in Cursor().query(query, *args)]
+    
+    getSelectDictCliente = lambda query, *args: [Cliente(**i) for i in UtilGeral._get_Only_active_elements(query, *args)]
 
-    getSelectDictProduto = lambda query, *args: [Produto(**i) for i in Cursor().query(query, *args)]
+    getSelectDictProduto = lambda query, *args: [Produto(**i) for i in UtilGeral._get_Only_active_elements(query, *args)]
 
-    getSelectDictContrato = lambda query, *args: [Contrato(**i) for i in Cursor().query(query, *args)]
+    getSelectDictContrato = lambda query, *args: [Contrato(**i) for i in UtilGeral._get_Only_active_elements(query, *args)]
 
-    getSelectDictParcela = lambda query, *args: [Parcela(**i) for i in Cursor().query(query, *args)]
+    getSelectDictParcela = lambda query, *args: [Parcela(**i) for i in UtilGeral._get_Only_active_elements(query, *args)]
 
-    getSelectDictItemProduto = lambda query, *args: [ItemProduto(**i) for i in Cursor().query(query, *args)]
+    getSelectDictItemProduto = lambda query, *args: [ItemProduto(**i) for i in UtilGeral._get_Only_active_elements(query, *args)]
 
     get_Val_Update = lambda oldValue, newValue: oldValue if newValue is None else newValue
 

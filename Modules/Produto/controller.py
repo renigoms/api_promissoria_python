@@ -6,6 +6,7 @@ from Modules.Produto.DAO import DAOProduto
 from Modules.Produto.model import Produto
 from Services.Exceptions import NullException, IDException, NotAlterException, ProductException, ForeingKeyException, \
     ReactiveException
+from Util.DaoUltil import UtilGeral
 from Util.ServerUtils import ResponseUtils
 
 
@@ -26,6 +27,8 @@ class ProdutoController:
         global data
         try:
             data = request.json
+            if UtilGeral.is_requered_itens_null(data, DAOProduto.REQUERED_ITEMS):
+                raise NullException()
             return ResponseUtils.generate_response("Produto Cadastrado com Sucesso", 200) \
                 if DAOProduto.post_create(Produto(**data)) \
                 else ResponseUtils.generate_response("Erro ao adicionar produto", 400)
